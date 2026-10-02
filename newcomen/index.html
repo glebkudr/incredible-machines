@@ -7,7 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap">
-<link rel="stylesheet" href="v87b04d29a4/machine_panel.css">
+<link rel="stylesheet" href="v657a3d320b/machine_panel.css">
 <style>
 :root { color-scheme: dark; --stage: #08090b; --panel: #1b1e23; --panel-2: #22262c; --line: #2e333a;
   --text: #e6e3dc; --muted: #8f949c; --accent: #e8a33d; }
@@ -45,7 +45,7 @@ html, body { margin: 0; height: 100%; background: var(--stage); color: var(--tex
 </div>
 <script src="../engine/godot-4.7.2/index.js"></script>
 <script type="module">
-import { createMachinePanel } from './v87b04d29a4/machine_panel.js';
+import { createMachinePanel } from './v657a3d320b/machine_panel.js';
 const TOTAL = 54705578;
 const stage = document.getElementById('stage');
 const canvas = document.getElementById('canvas');
@@ -66,11 +66,11 @@ const panel = createMachinePanel(document.getElementById('panel'), {
   send: cmd => window.ggscapeMachineCommand?.(JSON.stringify(cmd)),
   readState: () => { try { return JSON.parse(window.ggscapeMachineState || 'null'); } catch { return null; } },
 });
-fetch('v87b04d29a4/newcomen.json').then(r => r.json()).then(data => panel.setData(data));
+fetch('v657a3d320b/newcomen.json').then(r => r.json()).then(data => panel.setData(data));
 const show = (f, label) => { bar.style.width = (Math.min(f, 1) * 100).toFixed(1) + '%'; text.textContent = label; };
 const engine = new Engine({
   executable: '../engine/godot-4.7.2/index',
-  mainPack: 'v87b04d29a4/newcomen.pck',
+  mainPack: 'v657a3d320b/newcomen.pck',
   canvasResizePolicy: 0,
   ensureCrossOriginIsolationHeaders: false,
   onProgress: (cur, total) => {

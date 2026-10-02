@@ -3,12 +3,12 @@
  "machines": {
   "newcomen": {
    "title": "Атмосферная паровая машина Ньюкомена",
-   "version": "v87b04d29a4",
-   "pack": "newcomen/v87b04d29a4/newcomen.pck",
-   "data": "newcomen/v87b04d29a4/newcomen.json",
+   "version": "v657a3d320b",
+   "pack": "newcomen/v657a3d320b/newcomen.pck",
+   "data": "newcomen/v657a3d320b/newcomen.json",
    "sizes": {
     "pck": 15190824,
-    "data": 289853
+    "data": 289854
    }
   }
  },
