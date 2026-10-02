@@ -15,7 +15,7 @@
 const status = document.getElementById('status');
 const engine = new Engine({
   executable: '../engine/godot-4.7.2/index',
-  mainPack: 'v8f408c6dc2/newcomen.pck',
+  mainPack: 'v6acc2b503d/newcomen.pck',
   canvasResizePolicy: 2,
   ensureCrossOriginIsolationHeaders: false,
   onProgress: (cur, total) => { status.textContent = total ? 'Загрузка ' + Math.round(cur / total * 100) + ' %' : 'Загрузка…'; },
