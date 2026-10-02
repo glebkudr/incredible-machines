@@ -1,0 +1,22 @@
+{
+ "format": "ggscape-machines-web",
+ "machines": {
+  "newcomen": {
+   "title": "Атмосферная паровая машина Ньюкомена",
+   "version": "v8f408c6dc2",
+   "pack": "newcomen/v8f408c6dc2/newcomen.pck",
+   "data": "newcomen/v8f408c6dc2/newcomen.json",
+   "sizes": {
+    "pck": 7957024,
+    "data": 289577
+   }
+  }
+ },
+ "engine": "godot-4.7.2",
+ "engine_files": {
+  "index.js": 279815,
+  "index.wasm": 39514754,
+  "index.audio.worklet.js": 7298,
+  "index.audio.position.worklet.js": 2973
+ }
+}

@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Атмосферная паровая машина Ньюкомена</title>
+<style>html,body{margin:0;height:100%;background:#08090b;overflow:hidden}canvas{display:block;width:100%;height:100%}
+#status{position:fixed;inset:auto 0 16px;text-align:center;color:#c0c8b6;font:14px system-ui}</style>
+</head>
+<body>
+<canvas id="canvas" tabindex="0"></canvas>
+<div id="status">Загрузка…</div>
+<script src="../engine/godot-4.7.2/index.js"></script>
+<script>
+const status = document.getElementById('status');
+const engine = new Engine({
+  executable: '../engine/godot-4.7.2/index',
+  mainPack: 'v8f408c6dc2/newcomen.pck',
+  canvasResizePolicy: 2,
+  ensureCrossOriginIsolationHeaders: false,
+  onProgress: (cur, total) => { status.textContent = total ? 'Загрузка ' + Math.round(cur / total * 100) + ' %' : 'Загрузка…'; },
+});
+engine.startGame().then(() => status.remove(), (err) => { status.textContent = 'Не удалось запустить: ' + err; });
+</script>
+</body>
+</html>
