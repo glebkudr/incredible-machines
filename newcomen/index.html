@@ -4,23 +4,87 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Атмосферная паровая машина Ньюкомена</title>
-<style>html,body{margin:0;height:100%;background:#08090b;overflow:hidden}canvas{display:block;width:100%;height:100%}
-#status{position:fixed;inset:auto 0 16px;text-align:center;color:#c0c8b6;font:14px system-ui}</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500&display=swap">
+<link rel="stylesheet" href="v87b04d29a4/machine_panel.css">
+<style>
+:root { color-scheme: dark; --stage: #08090b; --panel: #1b1e23; --panel-2: #22262c; --line: #2e333a;
+  --text: #e6e3dc; --muted: #8f949c; --accent: #e8a33d; }
+html, body { margin: 0; height: 100%; background: var(--stage); color: var(--text); overflow: hidden; }
+.page { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 390px; }
+.stage { position: relative; min-width: 0; min-height: 0; }
+#canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; outline: none; touch-action: none; }
+.page > .machine-panel { border-left: 1px solid var(--line); }
+.load { position: absolute; inset: 0; display: grid; place-items: center; background: var(--stage); transition: opacity .4s; }
+.load.done { opacity: 0; pointer-events: none; }
+.load-box { width: min(440px, 80%); display: grid; gap: 12px; text-align: center; }
+.load-title { font: 600 20px/1.2 "IBM Plex Sans Condensed", system-ui, sans-serif; }
+.bar { height: 8px; border-radius: 4px; background: var(--panel-2); overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .2s; }
+.load-text { font: 12px "IBM Plex Mono", ui-monospace, monospace; color: var(--muted); font-variant-numeric: tabular-nums; }
+@media (max-width: 760px) {
+  .page { grid-template-columns: minmax(0, 1fr); grid-template-rows: 58% 42%; }
+  .page > .machine-panel { border-left: 0; border-top: 1px solid var(--line); }
+}
+</style>
 </head>
 <body>
-<canvas id="canvas" tabindex="0"></canvas>
-<div id="status">Загрузка…</div>
+<div class="page">
+  <div class="stage" id="stage">
+    <canvas id="canvas" tabindex="0" aria-label="Атмосферная паровая машина Ньюкомена: интерактивная модель"></canvas>
+    <div class="load" id="load" role="status">
+      <div class="load-box">
+        <div class="load-title">Атмосферная паровая машина Ньюкомена</div>
+        <div class="bar"><i id="bar"></i></div>
+        <div class="load-text" id="load-text">Загрузка…</div>
+      </div>
+    </div>
+  </div>
+  <aside id="panel" aria-label="Расчёт машины"></aside>
+</div>
 <script src="../engine/godot-4.7.2/index.js"></script>
-<script>
-const status = document.getElementById('status');
+<script type="module">
+import { createMachinePanel } from './v87b04d29a4/machine_panel.js';
+const TOTAL = 54705578;
+const stage = document.getElementById('stage');
+const canvas = document.getElementById('canvas');
+const load = document.getElementById('load');
+const bar = document.getElementById('bar');
+const text = document.getElementById('load-text');
+const mb = b => (b / 1048576).toFixed(1).replace('.', ',');
+// The canvas fills the stage beside the panel; the engine follows the canvas (resize policy 0).
+const fit = () => {
+  const r = stage.getBoundingClientRect();
+  const k = Math.min(window.devicePixelRatio || 1, 2);
+  canvas.width = Math.max(1, Math.round(r.width * k));
+  canvas.height = Math.max(1, Math.round(r.height * k));
+};
+new ResizeObserver(fit).observe(stage);
+fit();
+const panel = createMachinePanel(document.getElementById('panel'), {
+  send: cmd => window.ggscapeMachineCommand?.(JSON.stringify(cmd)),
+  readState: () => { try { return JSON.parse(window.ggscapeMachineState || 'null'); } catch { return null; } },
+});
+fetch('v87b04d29a4/newcomen.json').then(r => r.json()).then(data => panel.setData(data));
+const show = (f, label) => { bar.style.width = (Math.min(f, 1) * 100).toFixed(1) + '%'; text.textContent = label; };
 const engine = new Engine({
   executable: '../engine/godot-4.7.2/index',
-  mainPack: 'v6acc2b503d/newcomen.pck',
-  canvasResizePolicy: 2,
+  mainPack: 'v87b04d29a4/newcomen.pck',
+  canvasResizePolicy: 0,
   ensureCrossOriginIsolationHeaders: false,
-  onProgress: (cur, total) => { status.textContent = total ? 'Загрузка ' + Math.round(cur / total * 100) + ' %' : 'Загрузка…'; },
+  onProgress: (cur, total) => {
+    const all = total >= cur && total > 0 ? total : TOTAL;
+    const f = cur / all;
+    show(f, f < 0.999 ? `Загрузка ${Math.floor(f * 100)} % · ${mb(cur)} из ${mb(all)} МБ` : 'Запуск…');
+  },
 });
-engine.startGame().then(() => status.remove(), (err) => { status.textContent = 'Не удалось запустить: ' + err; });
+engine.startGame().then(() => {
+  show(1, 'Запуск…');
+  // The scene is up when it reports its state: then the bar goes.
+  const wait = () => window.ggscapeMachineState ? (load.classList.add('done'), canvas.focus()) : requestAnimationFrame(wait);
+  wait();
+}, err => { text.textContent = 'Не удалось запустить: ' + err; });
 </script>
 </body>
 </html>
